@@ -1,0 +1,30 @@
+[project]
+name = "codefix-service"
+version = "0.1.0"
+description = "Autonomous code-change service with an independent delivery gate."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "openai>=1.60",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Short basetemp: Windows limits paths to 260 characters and .git/objects nests deep.
+addopts = "-p no:cacheprovider --basetemp=.t"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    # CPython on Windows: pipe transports collected after a per-test asyncio.run() loop
+    # has closed. Test-harness artefact only; the service runs one long-lived loop.
+    "ignore:Exception ignored in. <function _ProactorBasePipeTransport.__del__:pytest.PytestUnraisableExceptionWarning",
+    "ignore:Exception ignored in. <function BaseSubprocessTransport.__del__:pytest.PytestUnraisableExceptionWarning",
+]
+markers = [
+    "needs_node: requires node on PATH",
+    "needs_challenge: requires the challenge repository (CHALLENGE_DIR)",
+]

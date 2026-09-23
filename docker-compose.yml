@@ -1,0 +1,33 @@
+# docker compose up --build
+#
+# 1. builds the sandbox image (acceptance:latest, identical to the grader's)
+# 2. starts the service on :8000
+#
+# The service launches sibling sandbox containers through the host's Docker
+# socket. The daemon resolves bind-mount paths on the host, so the work
+# directory is mounted at the SAME absolute path inside the service container.
+services:
+  acceptance:
+    build: ./sandbox
+    image: acceptance:latest
+    entrypoint: ["true"]          # build-only; the service runs it per check
+
+  codefix:
+    build: .
+    image: codefix-service:latest
+    depends_on:
+      acceptance:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CODEFIX_SANDBOX: docker
+      CODEFIX_WORK_ROOT: /tmp/codefix-work
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/codefix-work:/tmp/codefix-work
+      - ./runs:/app/runs
+    restart: unless-stopped

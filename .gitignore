@@ -1,0 +1,17 @@
+# secrets
+.env
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local scratch: test temp dirs, server logs, request traces, eval output
+.t/
+.t2/
+.run/
+.verify*/
+runs/
+results/
+.venv/
+venv/
